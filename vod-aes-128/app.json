@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Spalla VoD AES-128",
+    "slug": "spalla-vod-aes-128",
+    "version": "0.0.1",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.spalla.exemplos.vodaes128",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.spalla.exemplos.vodaes128"
+    },
+    "plugins": [
+      "spalla-react-native/app.plugin.js",
+      [
+        "react-native-video",
+        {
+          "enableADSExtension": true,
+          "androidExtensions": {
+            "useExoplayerHls": true,
+            "useExoplayerDash": false,
+            "useExoplayerSmoothStreaming": false,
+            "useExoplayerRtsp": false
+          }
+        }
+      ],
+      [
+        "react-native-google-cast",
+        {
+          "receiverAppId": "SEU_APP_ID"
+        }
+      ]
+    ]
+  }
+}

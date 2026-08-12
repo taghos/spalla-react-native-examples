@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Spalla Live DVR",
+    "slug": "spalla-live-dvr",
+    "version": "0.0.1",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.spalla.exemplos.livedvr",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.spalla.exemplos.livedvr"
+    },
+    "plugins": [
+      "spalla-react-native/app.plugin.js",
+      [
+        "react-native-video",
+        {
+          "enableADSExtension": true,
+          "androidExtensions": {
+            "useExoplayerHls": true,
+            "useExoplayerDash": false,
+            "useExoplayerSmoothStreaming": false,
+            "useExoplayerRtsp": false
+          }
+        }
+      ],
+      [
+        "react-native-google-cast",
+        {
+          "receiverAppId": "SEU_APP_ID"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Spalla VoD Vertical",
+    "slug": "spalla-vod-vertical",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.spalla.exemplos.vodvertical",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.spalla.exemplos.vodvertical"
+    },
+    "plugins": [
+      "spalla-react-native/app.plugin.js",
+      [
+        "react-native-video",
+        {
+          "enableADSExtension": true,
+          "androidExtensions": {
+            "useExoplayerHls": true,
+            "useExoplayerDash": false,
+            "useExoplayerSmoothStreaming": false,
+            "useExoplayerRtsp": false
+          }
+        }
+      ],
+      [
+        "react-native-google-cast",
+        {
+          "receiverAppId": "SEU_APP_ID"
+        }
+      ]
+    ]
+  }
+}
