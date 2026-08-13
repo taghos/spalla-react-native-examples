@@ -7,7 +7,7 @@ import SpallaPlayer, { SpallaCastButton, initialize } from 'spalla-react-native'
 // placeholders pelos seus valores.
 initialize('SEU_TOKEN', 'SEU_APP_ID');
 
-const CONTENT_ID = '01981a78-f1a9-7613-8160-fc319c4e08d4';
+const CONTENT_ID = '019ff7f6-b123-7bbe-a667-085b1a0b0fc8';
 
 export default function App() {
   // Metadados do stream chegam em metadataLoaded. LL-HLS toca direto do

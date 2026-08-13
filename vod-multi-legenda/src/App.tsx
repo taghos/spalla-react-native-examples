@@ -12,7 +12,7 @@ import CustomControls from './CustomControls';
 // placeholders pelos seus valores.
 initialize('SEU_TOKEN', 'SEU_APP_ID');
 
-const CONTENT_ID = '019fde5b-0657-789b-8760-94d319027911';
+const CONTENT_ID = '019ff62e-1f07-750f-a304-45888f7140e0';
 
 export default function App() {
   const ref = React.useRef<SpallaPlayer | null>(null);

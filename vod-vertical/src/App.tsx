@@ -8,7 +8,7 @@ import SpallaPlayer, { SpallaCastButton, initialize } from 'spalla-react-native'
 // App ID do Chromecast.
 initialize('SEU_TOKEN', 'SEU_APP_ID');
 
-const CONTENT_ID = '019fddce-fc67-73f7-aadf-d1370ab381f0';
+const CONTENT_ID = '019ff638-4443-7d1b-8453-ae290c8eb666';
 
 export default function App() {
   // isVertical vem de metadataLoaded (sp_vertical no config ou a resolução);

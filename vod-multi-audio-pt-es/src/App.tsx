@@ -7,7 +7,7 @@ import SpallaPlayer, { SpallaCastButton, initialize } from 'spalla-react-native'
 // placeholders pelos seus valores.
 initialize('SEU_TOKEN', 'SEU_APP_ID');
 
-const CONTENT_ID = '40c584b0-25f5-4919-92d2-6acd060b82f9';
+const CONTENT_ID = '019ff62e-1f07-750f-a304-45888f7140e0';
 
 export default function App() {
   // Duas trilhas nomeadas no manifest (ex.: Português/Español).
