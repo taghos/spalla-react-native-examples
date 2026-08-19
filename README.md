@@ -42,6 +42,8 @@ npx expo run:ios           # ou: npx expo run:android
 
 > **Não** use Expo Go: o SDK inclui um core nativo (C++ TurboModule) e depende de New Architecture. Use um dev client / prebuild.
 
+> Os patches nativos do `react-native-video` são **obrigatórios** e precisam de um `postinstall` no `package.json` do app — inclusive nestes exemplos. Veja [Obrigatório: aplicar os patches nativos](#obrigatório-aplicar-os-patches-nativos) e confirme com `npx spalla-doctor`.
+
 ---
 
 ## Usando o SDK
@@ -53,6 +55,39 @@ npm install spalla-react-native react-native-video @react-native-async-storage/a
 ```
 
 A UI do player é implementada em JS sobre o `react-native-video`. Telemetria e failover de CDN são um core nativo pré-compilado (C++ TurboModule), então o pacote **exige React Native 0.76+ com New Architecture** e **não roda no Expo Go**.
+
+### Obrigatório: aplicar os patches nativos
+
+O SDK depende de correções no `react-native-video` que ainda não estão no upstream:
+
+- **Android** — o player criado para o pre-roll era reaproveitado na fase DAI sem o ads loader de server-side, e o tratamento de erro estourava `NullPointerException` (`DaiAdsLoader is null`). Sem o patch, **toda live com Google DAI + pre-roll trava na inicialização**.
+- **iOS** — o container de anúncio do IMA engolia todos os toques (os controles ficavam inertes) e havia um loop de layout entre o overlay do player e a safe area.
+
+Os patches acompanham o pacote e são aplicados pelo `patch-package`. Adicione o hook ao `package.json` **do seu app** e reinstale:
+
+```json
+{
+  "scripts": {
+    "postinstall": "spalla-apply-patches"
+  }
+}
+```
+
+Depois **recompile o app nativo** — corrigir o `node_modules` não altera um binário já compilado.
+
+Para conferir a qualquer momento:
+
+```sh
+npx spalla-doctor
+```
+
+O comando sai com código diferente de zero e diz exatamente o que falta. Ele verifica **todas** as cópias instaladas: em monorepos cada workspace mantém seu próprio `node_modules`, e patchear só a raiz deixa de fora justamente a cópia que o app empacota.
+
+Sem os patches, anúncios e lives com DAI falham de um jeito que **parece problema de conteúdo ou de CDN**. Por isso o SDK também avisa em tempo de execução: registra um erro no console, emite o evento [`integrationWarning`](#eventos-do-player) e expõe `checkIntegration()` para o seu próprio health check na inicialização.
+
+> **Expo/EAS:** funciona com prebuild/CNG e EAS Build. Se o cache do build pular o `postinstall`, rode `npx spalla-doctor` como etapa do build para falhar cedo em vez de publicar um app quebrado.
+
+> Os `package.json` deste repositório ainda não trazem o `postinstall`: ele depende do bin `spalla-apply-patches`, disponível a partir da versão do SDK que introduziu os patches. Ao atualizar o `spalla-react-native`, adicione o script antes de rodar `npm install`.
 
 ### Configuração (Expo)
 
@@ -155,8 +190,11 @@ const [playing, setPlaying] = React.useState(true);
 | `setBitrate(bps \| null)` / `getBitrate()` / `getAvailableBitrates()` | qualidade (ABR) |
 | `enterFullscreen()` / `exitFullscreen()` / `isFullscreen()` | tela cheia nativa |
 | `enterPiP()` / `exitPiP()` / `isInPiP()` | Picture-in-Picture |
+| `checkIntegration()` | `{ ok, issue?, message? }` — se os patches do `react-native-video` estão ativos |
 
 > Setters convivem com as props equivalentes: a mudança mais recente vence.
+
+> Argumentos inválidos (seek `NaN`/negativo, velocidade fora da lista, bitrate não positivo) são rejeitados e reportados por telemetria, em vez de chegarem ao player nativo.
 
 ### Eventos do player
 
@@ -168,7 +206,7 @@ Todos chegam por `onPlayerEvent` como `{ nativeEvent }`:
 | `muted` / `unmuted` | — | estado de mudo |
 | `timeUpdate` | `time`, `seekableDuration` | posição atual; `seekableDuration` = fim da faixa buscável (janela DVR no live) |
 | `durationUpdate` | `duration` | duração do conteúdo (segundos) |
-| `metadataLoaded` | `isLive`, `duration`, `isVertical`, `dvrEnabled` | disparado quando o stream carrega |
+| `metadataLoaded` | `isLive`, `duration`, `isVertical`, `dvrEnabled` | metadados do stream. Com pre-roll, dispara logo que o ad break começa (a partir do config) e de novo com as dimensões reais quando o conteúdo carrega — assim o app nunca espera o anúncio para chamar `play()` |
 | `subtitlesAvailable` | `subtitles: string[]` | legendas disponíveis para `subtitle` |
 | `subtitleSelected` | `subtitle` | ecoa a prop `subtitle` |
 | `audioTracksAvailable` | `audioTracks: string[]` | faixas de áudio disponíveis |
@@ -178,4 +216,5 @@ Todos chegam por `onPlayerEvent` como `{ nativeEvent }`:
 | `enterPiP` / `exitPiP` | — | transições de Picture-in-Picture |
 | `onEnterFullScreen` / `onExitFullScreen` | — | transições de tela cheia |
 | `adBreakBegin` / `adBreakEnd` / `adBegin` / `adEnd` / `adError` | — | ciclo de vida de anúncios |
+| `integrationWarning` | `code`, `message` | os patches do `react-native-video` estão ausentes, desatualizados ou fora do build nativo (ver [Instalação](#obrigatório-aplicar-os-patches-nativos)) |
 | `error` | `message`, `canRetry` | falha de playback/carregamento |
