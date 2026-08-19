@@ -42,7 +42,7 @@ npx expo run:ios           # ou: npx expo run:android
 
 > **Não** use Expo Go: o SDK inclui um core nativo (C++ TurboModule) e depende de New Architecture. Use um dev client / prebuild.
 
-> Os patches nativos do `react-native-video` são **obrigatórios** e precisam de um `postinstall` no `package.json` do app — inclusive nestes exemplos. Veja [Obrigatório: aplicar os patches nativos](#obrigatório-aplicar-os-patches-nativos) e confirme com `npx spalla-doctor`.
+> Cada exemplo já traz o `postinstall` que aplica os patches nativos do `react-native-video` — eles são **obrigatórios** (veja [Obrigatório: aplicar os patches nativos](#obrigatório-aplicar-os-patches-nativos)). Ao copiar o código para um app seu, replique esse script e confirme com `npx spalla-doctor`.
 
 ---
 
@@ -87,7 +87,9 @@ Sem os patches, anúncios e lives com DAI falham de um jeito que **parece proble
 
 > **Expo/EAS:** funciona com prebuild/CNG e EAS Build. Se o cache do build pular o `postinstall`, rode `npx spalla-doctor` como etapa do build para falhar cedo em vez de publicar um app quebrado.
 
-> Os `package.json` deste repositório ainda não trazem o `postinstall`: ele depende do bin `spalla-apply-patches`, disponível a partir da versão do SDK que introduziu os patches. Ao atualizar o `spalla-react-native`, adicione o script antes de rodar `npm install`.
+> O npm recente pode avisar que `spalla-react-native` tem um install script não aprovado (`install-scripts not yet covered by allowScripts`). Pode ignorar: quem aplica os patches é o `postinstall` **do seu app**, e ele roda normalmente. O `spalla-doctor` confirma.
+
+> O `react-native-video` fica **fixado em 6.19.2** nos exemplos: o patch é gerado contra essa versão exata e um range como `^6.19.1` pode resolver para uma versão em que ele não aplica.
 
 ### Configuração (Expo)
 
