@@ -178,6 +178,7 @@ const [playing, setPlaying] = React.useState(true);
 | `customImaParams` | Map | parâmetros extras para tags IMA (chave e valor string) |
 | `customAds` | Array | anúncios VAST/VMAP customizados |
 | `pipEnabled` | boolean | habilita Picture-in-Picture |
+| `subtitleAppearance` | object | customiza tamanho/margem da legenda. Ver [Aparência da legenda](#aparência-da-legenda) |
 
 ### Métodos imperativos (via ref)
 
@@ -220,3 +221,24 @@ Todos chegam por `onPlayerEvent` como `{ nativeEvent }`:
 | `adBreakBegin` / `adBreakEnd` / `adBegin` / `adEnd` / `adError` | — | ciclo de vida de anúncios |
 | `integrationWarning` | `code`, `message` | os patches do `react-native-video` estão ausentes, desatualizados ou fora do build nativo (ver [Instalação](#obrigatório-aplicar-os-patches-nativos)) |
 | `error` | `message`, `canRetry` | falha de playback/carregamento |
+
+### Aparência da legenda
+
+Por padrão o SDK aumenta a legenda em tela cheia (vídeo vertical ou `aspectRatio="aspectFill"`, já que recortar o quadro encolhe o tamanho nativo da legenda) e mantém uma margem da borda inferior. Para customizar, use `subtitleAppearance`:
+
+```tsx
+<SpallaPlayer
+  contentId="SEU_CONTENT_ID"
+  subtitleAppearance={{
+    fontSize: 18, // tamanho inline (vídeo vertical); padrão 16
+    bottomPaddingRatio: 1.8, // margem = fontSize * ratio; padrão 1.8
+    // bottomPadding: 24, // margem fixa em pontos, sobrepõe bottomPaddingRatio
+    fullscreen: {
+      fontSize: 28, // tamanho fixo em tela cheia; padrão escala com a tela
+      // bottomPaddingRatio / bottomPadding também aceitos aqui
+    },
+  }}
+/>
+```
+
+Todo campo é opcional e cai no padrão do SDK; os campos de `fullscreen` caem nos da base (exceto `fontSize`, que mantém seu próprio padrão responsivo quando omitido).
