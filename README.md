@@ -242,3 +242,5 @@ Por padrão o SDK aumenta a legenda em tela cheia (vídeo vertical ou `aspectRat
 ```
 
 Todo campo é opcional e cai no padrão do SDK; os campos de `fullscreen` caem nos da base (exceto `fontSize`, que mantém seu próprio padrão responsivo quando omitido).
+
+O `subtitleAppearance` é ignorado em Picture-in-Picture: a janela minúscula sempre usa o tamanho padrão do SDK, já que um tamanho customizado ficaria ilegível ou não caberia nela.
