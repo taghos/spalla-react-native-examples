@@ -18,6 +18,9 @@ const AD_EVENTS = [
   'adError',
 ];
 
+// AD_PROGRESS dispara várias vezes por segundo: fora do log para não inundar.
+const NOISY_AD_EVENTS = ['AD_PROGRESS'];
+
 export default function App() {
   const [adLog, setAdLog] = React.useState<string[]>([]);
 
@@ -33,12 +36,17 @@ export default function App() {
             style={styles.video}
             contentId={CONTENT_ID}
             onPlayerEvent={({ nativeEvent }) => {
+              const stamp = new Date().toLocaleTimeString();
+              const append = (line: string) =>
+                setAdLog((prev) => [...prev.slice(-8), `${stamp} ${line}`]);
               if (AD_EVENTS.includes(nativeEvent.event)) {
-                const stamp = new Date().toLocaleTimeString();
-                setAdLog((prev) => [
-                  ...prev.slice(-8),
-                  `${stamp} ${nativeEvent.event}`,
-                ]);
+                append(nativeEvent.event);
+              } else if (
+                nativeEvent.event === 'adEvent' &&
+                !NOISY_AD_EVENTS.includes(nativeEvent.name)
+              ) {
+                // Todo evento cru do IMA: quartis, impressões, cliques etc.
+                append(`IMA ${nativeEvent.name}`);
               }
             }}
           />

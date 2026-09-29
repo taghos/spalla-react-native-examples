@@ -13,7 +13,7 @@ Coleção de exemplos **prontos para rodar** do SDK [`spalla-react-native`](http
 | [vod-legenda-embutida](./vod-legenda-embutida) | Legenda embutida no manifest (`EXT-X-MEDIA TYPE=SUBTITLES`) |
 | [vod-multi-audio-4-trilhas](./vod-multi-audio-4-trilhas) | 4 trilhas de áudio embutidas (`audioTracksAvailable`) |
 | [vod-multi-audio-pt-es](./vod-multi-audio-pt-es) | Troca de idioma de áudio (Português/Español) |
-| [live-google-dai](./live-google-dai) | Ao vivo com Google DAI e eventos de ad break |
+| [live-google-dai](./live-google-dai) | Ao vivo com Google DAI e todos os eventos de anúncio (ciclo de vida + `adEvent` cru do IMA) |
 | [live-dvr](./live-dvr) | Janela DVR, `seekableDuration`, scrub e `seekToLive()` |
 | [vod-aes-128](./vod-aes-128) | Playback transparente de HLS cifrado (AES-128) |
 | [live-ll-hls](./live-ll-hls) | Ao vivo de baixa latência (LL-HLS) |
@@ -218,9 +218,43 @@ Todos chegam por `onPlayerEvent` como `{ nativeEvent }`:
 | `playbackRateSelected` | `rate` | ecoa a velocidade |
 | `enterPiP` / `exitPiP` | — | transições de Picture-in-Picture |
 | `onEnterFullScreen` / `onExitFullScreen` | — | transições de tela cheia |
-| `adBreakBegin` / `adBreakEnd` / `adBegin` / `adEnd` / `adError` | — | ciclo de vida de anúncios |
+| `adBreakBegin` / `adBreakEnd` / `adBegin` / `adEnd` | — | ciclo de vida de anúncios |
+| `adError` | `error`, `data` | um anúncio falhou; `error` vem como `"<código>: <motivo>"` e `data` é o payload de erro cru do IMA, quando a plataforma manda um. O conteúdo continua tocando |
+| `adEvent` | `name`, `data` | todo evento de anúncio reportado pelo SDK do IMA, repassado sem filtro (ver [Eventos de anúncio](#eventos-de-anúncio)) |
 | `integrationWarning` | `code`, `message` | os patches do `react-native-video` estão ausentes, desatualizados ou fora do build nativo (ver [Instalação](#obrigatório-aplicar-os-patches-nativos)) |
 | `error` | `message`, `canRetry` | falha de playback/carregamento |
+
+### Eventos de anúncio
+
+Os eventos de ciclo de vida acima cobrem só o intervalo comercial: eles resumem
+os ~38 tipos de evento do IMA em pares de começo/fim. Para todo o resto —
+quartis, impressões, cliques, pausas, mudança de estado de skip — escute
+`adEvent`, que repassa cada evento reportado pelo IMA, inclusive os que o SDK
+também mapeia para um evento de ciclo de vida:
+
+```tsx
+<SpallaPlayer
+  contentId="SEU_CONTENT_ID"
+  onPlayerEvent={({ nativeEvent }) => {
+    if (nativeEvent.event === 'adEvent') {
+      // 'LOADED' | 'STARTED' | 'IMPRESSION' | 'FIRST_QUARTILE' | 'MIDPOINT' |
+      // 'THIRD_QUARTILE' | 'COMPLETED' | 'CLICK' | 'AD_PROGRESS' | ...
+      analytics.track(nativeEvent.name, nativeEvent.data);
+    }
+  }}
+/>
+```
+
+`name` é o nome cru do evento do IMA — a lista completa é o enum `AdEvent` do
+[`react-native-video`](https://github.com/TheWidlarzGroup/react-native-video/blob/master/src/types/Ads.ts).
+`data` é o payload do IMA sem tratamento: o formato muda conforme o evento e a
+plataforma (no iOS, por exemplo, `ERROR` traz `{ message, code, type }`), então
+trate como opaco e proteja cada campo que for ler.
+
+`adEvent` é emitido antes de qualquer heurística de anúncio do próprio SDK, de
+modo que nenhum evento é engolido pela proteção contra loop de pre-roll nem pelo
+watchdog. `AD_PROGRESS` dispara várias vezes por segundo enquanto o anúncio toca
+— não guarde no state do React.
 
 ### Aparência da legenda
 

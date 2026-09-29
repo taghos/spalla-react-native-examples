@@ -5,8 +5,13 @@ Ao vivo com server-side ad insertion (DAI). Demonstra os eventos de ad break e o
 ## O que este exemplo cobre
 
 - Eventos `adBreakBegin` / `adBreakEnd` / `adBegin` / `adEnd` / `adError` no `onPlayerEvent`.
+- O evento `adEvent`, que repassa **todo** evento cru do IMA (`IMPRESSION`, `FIRST_QUARTILE`, `MIDPOINT`, `THIRD_QUARTILE`, `CLICK`, `AD_PROGRESS`…) em `nativeEvent.name`, com o payload original em `nativeEvent.data`.
 - Um log em tela mostrando o ciclo de vida dos anúncios enquanto o live roda.
 - Controles nativos do player.
+
+> O log filtra `AD_PROGRESS`: ele dispara várias vezes por segundo e não deve ir para o state do React.
+
+> `adEvent` é recente. Se o TypeScript não reconhecer `nativeEvent.name`, atualize o `spalla-react-native` (`npm install spalla-react-native@latest`).
 
 ## Como rodar
 
